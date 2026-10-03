@@ -1,12 +1,14 @@
 import streamlit as st
 import pandas as pd
 
+# Configure page
 st.set_page_config(
     page_title="EduRisk Analytics - Lab 02",
     page_icon="🎓",
     layout="wide"
 )
 
+# Student Dataset
 student_df = pd.DataFrame({
     "Student Name": ["Dara", "Sophea", "Vuthy", "Malis", "Rithy", "Sreyneang", "Chan", "Bopha"],
     "Course": ["Python", "Statistics", "Python", "Database", "Web App", "Database", "Python", "Statistics"],
@@ -15,6 +17,7 @@ student_df = pd.DataFrame({
     "Study Hours": [12, 8, 3, 15, 5, 14, 9, 7]
 })
 
+# Risk level function
 def get_risk_level(score, attendance):
     if score < 60 or attendance < 60:
         return "High Risk"
@@ -23,11 +26,13 @@ def get_risk_level(score, attendance):
     else:
         return "Low Risk"
 
+# Risk Level Column
 student_df["Risk Level"] = student_df.apply(
     lambda row: get_risk_level(row["Score"], row["Attendance"]),
     axis=1
 )
 
+# Sidebar Navigation
 with st.sidebar:
     st.title("EduRisk Menu")
     selected_page = st.radio(
@@ -35,6 +40,7 @@ with st.sidebar:
         ["Home", "Dashboard", "Student Data", "Risk Checker", "About"]
     )
 
+# Home page
 if selected_page == "Home":
     st.title("🎓 EduRisk Analytics")
     st.subheader("Interactive Student Risk Monitoring Dashboard")
@@ -42,21 +48,25 @@ if selected_page == "Home":
     st.write("In this lab, you will use Streamlit widgets to explore student performance data.")
     st.success("Lab 02 app is running successfully!")
 
+# Dashboard page
 elif selected_page == "Dashboard":
     st.title("Interactive Dashboard")
 
     st.write("Use the filters below to explore student performance.")
 
+    # Course filter
     selected_course = st.selectbox(
         "Select Course",
         ["All"] + list(student_df["Course"].unique())
     )
 
+    # Risk Level filter
     selected_risk = st.selectbox(
         "Select Risk Level",
         ["All", "Low Risk", "Medium Risk", "High Risk"]
     )
 
+    # Minimum attendance slider
     min_attendance = st.slider(
         "Minimum Attendance",
         0,
@@ -64,6 +74,7 @@ elif selected_page == "Dashboard":
         0
     )
 
+    # Minimum score slider
     min_score = st.slider(
         "Minimum Score",
         0,
@@ -71,6 +82,7 @@ elif selected_page == "Dashboard":
         0
     )
 
+    # Filtering logic
     filtered_df = student_df.copy()
 
     if selected_course != "All":
@@ -87,6 +99,7 @@ elif selected_page == "Dashboard":
         filtered_df["Score"] >= min_score
     ]
 
+    # Dashboard Metrics
     total_students = len(filtered_df)
 
     if len(filtered_df) > 0:
@@ -116,12 +129,15 @@ elif selected_page == "Dashboard":
     with col4:
         st.metric("High Risk", high_risk_students)
 
+    # Show/Hide dataset checkbox
     show_data = st.checkbox("Show Filtered Dataset", True)
 
     if show_data:
         st.subheader("Filtered Student Dataset")
         st.dataframe(filtered_df)
 
+
+        # Download button
         csv = filtered_df.to_csv(index=False)
 
         st.download_button(
@@ -133,6 +149,8 @@ elif selected_page == "Dashboard":
     else:
         st.info("Filtered dataset is hidden.")
 
+
+    # Student score chart
     st.subheader("Charts")
 
     chart_col1, chart_col2 = st.columns(2)
@@ -140,12 +158,15 @@ elif selected_page == "Dashboard":
     with chart_col1:
         st.write("Student Scores")
 
+
+
         if len(filtered_df) > 0:
             score_chart = filtered_df.set_index("Student Name")["Score"]
             st.bar_chart(score_chart)
         else:
             st.warning("No data available for score chart.")
 
+    # Risk level count chart
     with chart_col2:
         st.write("Risk Level Count")
 
@@ -155,6 +176,7 @@ elif selected_page == "Dashboard":
         else:
             st.warning("No data available for risk chart.")
 
+# Student data page
 elif selected_page == "Student Data":
     st.title("Student Data")
 
@@ -182,6 +204,7 @@ elif selected_page == "Student Data":
     st.subheader("Full Student Dataset")
     st.dataframe(student_df)
 
+# Risk cheker page
 elif selected_page == "Risk Checker":
     st.title("Single Student Risk Checker")
 
@@ -205,6 +228,7 @@ elif selected_page == "Risk Checker":
         else:
             st.error("Risk Level: High Risk")
 
+# About page
 else:
     st.title("About")
     st.write("This app is part of Lab 02.")
