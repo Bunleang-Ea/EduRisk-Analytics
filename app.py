@@ -1,4 +1,6 @@
 import streamlit as st
+from streamlit_option_menu import option_menu
+import altair as alt
 import pandas as pd
 
 # Configure page
@@ -34,10 +36,12 @@ student_df["Risk Level"] = student_df.apply(
 
 # Sidebar Navigation
 with st.sidebar:
-    st.title("EduRisk Menu")
-    selected_page = st.radio(
-        "Select Page",
-        ["Home", "Dashboard", "Student Data", "Risk Checker", "About"]
+    selected_page = option_menu(
+        menu_title="Menu",  # Header of the sidebar
+        options=["Home", "Dashboard", "Student Data", "Risk Checker", "About"],
+        # Add cool icons for each page (optional but looks great!)
+        icons=["house", "bar-chart-line", "table", "shield-check", "info-circle"],
+        default_index=0, # Starts on the first page
     )
 
 # Home page
@@ -66,21 +70,18 @@ elif selected_page == "Dashboard":
         ["All", "Low Risk", "Medium Risk", "High Risk"]
     )
 
-    # Minimum attendance slider
-    min_attendance = st.slider(
-        "Minimum Attendance",
-        0,
-        100,
-        0
-    )
+    # Side-by-side boxed sliders
+    slider_col1, slider_col2 = st.columns(2)
 
-    # Minimum score slider
-    min_score = st.slider(
-        "Minimum Score",
-        0,
-        100,
-        0
-    )
+    # Minimum Attendance
+    with slider_col1:
+        with st.container(border=True):
+            min_attendance = st.slider("Minimum Attendance", 0, 100, 0)
+
+    # Minimum Score
+    with slider_col2:
+        with st.container(border=True):
+            min_score = st.slider("Minimum Score", 0, 100, 0)
 
     # Filtering logic
     filtered_df = student_df.copy()
@@ -115,19 +116,25 @@ elif selected_page == "Dashboard":
 
     st.subheader("Dashboard Metrics")
 
+    # Create 4 columns for the metrics
     col1, col2, col3, col4 = st.columns(4)
 
+    # Wrap each metric inside a bordered container
     with col1:
-        st.metric("Students", total_students)
+        with st.container(border=True):
+            st.metric("Students", total_students)
 
     with col2:
-        st.metric("Average Score", round(average_score, 2))
+        with st.container(border=True):
+            st.metric("Average Score", round(average_score, 2))
 
     with col3:
-        st.metric("Average Attendance", f"{round(average_attendance, 2)}%")
+        with st.container(border=True):
+            st.metric("Average Attendance", f"{round(average_attendance, 2)}%")
 
     with col4:
-        st.metric("High Risk", high_risk_students)
+        with st.container(border=True):
+            st.metric("High Risk", high_risk_students)
 
     # Show/Hide dataset checkbox
     show_data = st.checkbox("Show Filtered Dataset", True)
@@ -135,7 +142,6 @@ elif selected_page == "Dashboard":
     if show_data:
         st.subheader("Filtered Student Dataset")
         st.dataframe(filtered_df)
-
 
         # Download button
         csv = filtered_df.to_csv(index=False)
@@ -158,8 +164,6 @@ elif selected_page == "Dashboard":
     with chart_col1:
         st.write("Student Scores")
 
-
-
         if len(filtered_df) > 0:
             score_chart = filtered_df.set_index("Student Name")["Score"]
             st.bar_chart(score_chart)
@@ -171,8 +175,25 @@ elif selected_page == "Dashboard":
         st.write("Risk Level Count")
 
         if len(filtered_df) > 0:
-            risk_count = filtered_df["Risk Level"].value_counts()
-            st.bar_chart(risk_count)
+            # Prepare data for Altair
+            risk_count_df = filtered_df["Risk Level"].value_counts().reset_index()
+            risk_count_df.columns = ["Risk Level", "Count"]
+
+            # Create an Altair chart with custom colors
+            risk_chart = alt.Chart(risk_count_df).mark_bar().encode(
+                x=alt.X("Risk Level", sort=None),
+                y="Count",
+                color=alt.Color(
+                    "Risk Level",
+                    scale=alt.Scale(
+                        domain=["Low Risk", "Medium Risk", "High Risk"],
+                        range=["#28a745", "#ffc107", "#dc3545"] # Green, Yellow, Red
+                    ),
+                    legend=None # Hide legend since x-axis has the labels
+                )
+            )
+            # Display the chart
+            st.altair_chart(risk_chart, use_container_width=True)
         else:
             st.warning("No data available for risk chart.")
 
@@ -190,16 +211,20 @@ elif selected_page == "Student Data":
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        st.metric("Total Students", total_students)
+        with st.container(border=True):
+            st.metric("Total Students", total_students)
 
     with col2:
-        st.metric("Average Score", round(average_score, 2))
+        with st.container(border=True):
+            st.metric("Average Score", round(average_score, 2))
 
     with col3:
-        st.metric("Average Attendance", f"{round(average_attendance, 2)}%")
+        with st.container(border=True):
+            st.metric("Average Attendance", f"{round(average_attendance, 2)}%")
 
     with col4:
-        st.metric("High Risk Students", high_risk_students)
+        with st.container(border=True):
+            st.metric("High Risk Students", high_risk_students)
 
     st.subheader("Full Student Dataset")
     st.dataframe(student_df)
