@@ -1,0 +1,17 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environments (depending on what you named yours)
+venv/
+.venv/
+env/
+
+# Environment variables / Secrets (never commit API keys or passwords)
+.env
+
+# IDE / Editor folders
+.vscode/
+.idea/
