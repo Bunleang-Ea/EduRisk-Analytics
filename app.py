@@ -48,6 +48,9 @@ with st.sidebar:
 if selected_page == "Home":
     st.title("🎓 EduRisk Analytics")
     st.subheader("Interactive Student Risk Monitoring Dashboard")
+    
+    st.divider() # ADDED DIVIDER
+    
     st.write("Welcome to Lab 02.")
     st.write("In this lab, you will use Streamlit widgets to explore student performance data.")
     st.success("Lab 02 app is running successfully!")
@@ -55,20 +58,26 @@ if selected_page == "Home":
 # Dashboard page
 elif selected_page == "Dashboard":
     st.title("Interactive Dashboard")
-
     st.write("Use the filters below to explore student performance.")
+    
+    st.divider() # ADDED DIVIDER
 
-    # Course filter
-    selected_course = st.selectbox(
-        "Select Course",
-        ["All"] + list(student_df["Course"].unique())
-    )
+    # Create two columns side by side
+    filter_col1, filter_col2 = st.columns(2)
 
-    # Risk Level filter
-    selected_risk = st.selectbox(
-        "Select Risk Level",
-        ["All", "Low Risk", "Medium Risk", "High Risk"]
-    )
+    with filter_col1:
+        # Course filter
+        selected_course = st.selectbox(
+            "Select Course",
+            ["All"] + list(student_df["Course"].unique())
+        )
+
+    with filter_col2:
+        # Risk Level filter
+        selected_risk = st.selectbox(
+            "Select Risk Level",
+            ["All", "Low Risk", "Medium Risk", "High Risk"]
+        )
 
     # Side-by-side boxed sliders
     slider_col1, slider_col2 = st.columns(2)
@@ -99,6 +108,8 @@ elif selected_page == "Dashboard":
     filtered_df = filtered_df[
         filtered_df["Score"] >= min_score
     ]
+
+    st.divider() # ADDED DIVIDER
 
     # Dashboard Metrics
     total_students = len(filtered_df)
@@ -136,6 +147,8 @@ elif selected_page == "Dashboard":
         with st.container(border=True):
             st.metric("High Risk", high_risk_students)
 
+    st.divider() # ADDED DIVIDER
+
     # Show/Hide dataset checkbox
     show_data = st.checkbox("Show Filtered Dataset", True)
 
@@ -155,6 +168,7 @@ elif selected_page == "Dashboard":
     else:
         st.info("Filtered dataset is hidden.")
 
+    st.divider() # ADDED DIVIDER
 
     # Student score chart
     st.subheader("Charts")
@@ -200,6 +214,8 @@ elif selected_page == "Dashboard":
 # Student data page
 elif selected_page == "Student Data":
     st.title("Student Data")
+    
+    st.divider() # ADDED DIVIDER
 
     total_students = len(student_df)
     average_score = student_df["Score"].mean()
@@ -225,21 +241,35 @@ elif selected_page == "Student Data":
     with col4:
         with st.container(border=True):
             st.metric("High Risk Students", high_risk_students)
+            
+    st.divider() # ADDED DIVIDER
 
     st.subheader("Full Student Dataset")
     st.dataframe(student_df)
 
-# Risk cheker page
+# Risk checker page
 elif selected_page == "Risk Checker":
     st.title("Single Student Risk Checker")
+    
+    st.divider() # ADDED DIVIDER
 
     with st.form("risk_checker_form"):
         input_name = st.text_input("Student Name")
-        input_score = st.number_input("Score", 0, 100, 50)
-        input_attendance = st.number_input("Attendance", 0, 100, 50)
+        
+        # Create two columns inside the form
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            input_score = st.number_input("Score", 0, 100, 50)
+            
+        with col2:
+            input_attendance = st.number_input("Attendance", 0, 100, 50)
+            
         submitted = st.form_submit_button("Check Risk")
 
     if submitted:
+        st.divider() # ADDED DIVIDER (shows up between form and result)
+        
         risk_result = get_risk_level(input_score, input_attendance)
 
         st.write("Student Name:", input_name)
@@ -256,6 +286,9 @@ elif selected_page == "Risk Checker":
 # About page
 else:
     st.title("About")
+    
+    st.divider() # ADDED DIVIDER
+    
     st.write("This app is part of Lab 02.")
     st.write("Course: Web App Development for Data Science")
     st.write("Project Theme: EduRisk Analytics")
